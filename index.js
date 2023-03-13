@@ -44,7 +44,7 @@ function dbSetup() {
 
 function appStartedCallback() {
     console.log("App is listening.");
-    db = new sqlite3.Database("features.db");
+    db = new sqlite3.Database("tasks.db");
     dbSetup();
 }
 
