@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3');
 const app = express();
-const port = process.env.PORT || 8080;
+const port = 8080;
+// const port = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -10,97 +11,111 @@ app.use(express.json());
 
 let db = null;
 
-function dbSetup() {
+const getAllRows = (error, rows) => {
+    if (error) {
+        return {
+            error,
+        };
+    } else {
+        return rows;
+    }
+};
+
+const dbSetup = (doInsert) => {
     if (db === null) {
         return;
     }
 
-    // https://www.sqlite.org/datatype3.html  
-    db.run(` 
-        CREATE TABLE IF NOT EXISTS Features ( 
-            id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            feature TEXT NOT NULL, 
-            version TEXT NOT NULL, 
-            year INTEGER NOT NULL  
-        );      
-    `, createDoneCallback);
+    db.run(`
+      CREATE TABLE IF NOT EXISTS Tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        taskName TEXT NOT NULL,
+        duration TEXT NOT NULL,
+        priority TEXT NOT NULL,
+        day      TEXT NOT NULL
+      );
+    `);
 
-    function createDoneCallback(error) {
-        if (error === null) {
-            db.all(`SELECT COUNT(*) AS cnt FROM Features;`, (error, rows) => {
-                if (error) return;
-                if (rows[0].cnt === 0) {
-                    db.run(` 
-                        INSERT INTO Features (feature, version, year)  
-                        VALUES   
-                            ('Spread operator', 'ES6', 2015),  
-                            ('Array destructuring', 'ES6', 2015);  
-                    `);
-                }
-            });
-        }
+    if (doInsert) {
+        db.run(`
+          INSERT INTO Tasks (taskName, duration, priority, day)
+          VALUES ("Learning React", "2 hours", "High", "Monday"), 
+                ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday"),
+                ("React project state management", "4 hours", "Low", "Thursday"),
+                ("Experiment with Styled Components", "1 hour", "Low", "Thursday");
+      `);
     }
-}
+};
 
-function appStartedCallback() {
-    console.log("App is listening.");
+const listenCallback = () => {
+    console.log(`Server is listening on port ${port}.`);
     db = new sqlite3.Database("tasks.db");
-    dbSetup();
-}
+    dbSetup(false);
+};
 
-app.listen(port, appStartedCallback);
+app.listen(port, listenCallback);
 
-function rootVisitedCallback(req, res) {
-    res.send({ status: 200, message: 'OK' });
-}
+const renderMainPage = (req, res) => {
+    res.send({ status: true });
+};
+app.get("/", renderMainPage);
 
-app.get("/", rootVisitedCallback);
-
-app.get('/api/features', (req, res) => {
-    db.all('SELECT * FROM Features;', (error, rows) => {
+app.get("/api/tasks", (req, res) => {
+    db.all("SELECT * FROM Tasks", (error, rows) => {
         if (error) {
-            res.send({ message: error.message });
+            res.send({ error });
         } else {
             res.send(rows);
         }
     });
 });
 
-app.get('/api/features/:id', (req, res) => {
-    const id = req.params.id;
-    db.all('SELECT * FROM Features WHERE id = ?;', [id], (error, rows) => {
-        if (error) {
-            res.send({ message: error.message });
-        } else {
-            res.send(rows);
+app.get("/api/tasks/:id", (req, res) => {
+    const id = Number.parseInt(req.params.id, 10);
+
+    db.all(
+        `
+      SELECT *
+      FROM Tasks
+      WHERE id = ?
+    `, [id],
+        (error, rows) => {
+            if (error) {
+                res.send({ error });
+            } else {
+                res.send(rows);
+            }
         }
-    });
+    );
 });
 
-app.delete('/api/features/:id', (req, res) => {
-    const id = req.params.id;
-    db.run(`DELETE FROM Features WHERE id = ?;`, [id], (error) => {
-        if (error) {
-            res.send({ message: error.message });
-        } else {
-            res.send({ status: 200, message: 'OK' });
-        }
-    });
+app.delete("/api/tasks/:id", (req, res) => {
+    const id = Number.parseInt(req.params.id, 10);
+
+    db.run(
+        `
+      DELETE FROM Tasks
+      WHERE id = ?
+    `, [id]
+    );
+    res.send({ status: true });
 });
 
-app.put('/api/features/:id', (req, res) => {
+app.put('/api/tasks/:id', (req, res) => {
     const id = req.params.id;
-    const { feature, version, year } = req.body;
-    if (typeof feature === 'string' && feature.length > 0 &&
-        typeof version === 'string' && version.length > 0 &&
-        typeof year === 'number') {
+    const { taskName, duration, priority, day } = req.body;
+    if (typeof taskName === 'string' && taskName.length > 0 &&
+        typeof duration === 'string' && duration.length > 0 &&
+        typeof priority === 'string' && priority.length > 0 &&
+        typeof day === 'string' && day.length > 0) {
         db.run(` 
-            UPDATE Features 
-            SET feature=?, 
-                version=?, 
-                year=? 
+            UPDATE Tasks 
+            SET taskName=?, 
+                duration=?, 
+                priority=?,
+                day=? 
             WHERE id=? 
-        `, [feature, version, year, id],
+        `, [taskName, duration, priority, day, id],
             (error) => {
                 if (error) {
                     res.send({ status: 500, error: error.message });
@@ -113,30 +128,12 @@ app.put('/api/features/:id', (req, res) => {
     }
 });
 
-app.post("/api/features/new", (req, res) => {
-    db.run(` 
-        INSERT INTO Features (feature, version, year) 
-        VALUES (?, ?, ?); 
-    `, [req.body.feature, req.body.version, req.body.year], callback);
-
-    function callback(error) {
-        if (error) {
-            res.send({ status: 500, error: error.message });
-        } else {
-            res.send({ status: 200, message: 'OK' });
-        }
-    }
-});
-
-app.get("/form", (req, res) => {
-    res.send(`<html> 
-      <body> 
-        <form action="/api/features/new" method="POST"> 
-          <input type="text" name="feature" placeholder="Feature" /> 
-          <input type="text" name="version" placeholder="Version" /> 
-          <input type="number" name="year" placeholder="Year" /> 
-          <button type="submit">Submit</button> 
-        </form> 
-      </body> 
-    </html>`);
+app.post("/api/tasks/new", (req, res) => {
+    db.run(
+        `
+      INSERT INTO Tasks (taskName, duration, priority, day)
+      VALUES (?, ?, ? ?);
+    `, [req.body.taskName, req.body.duration, req.body.priority, req.body.day]
+    );
+    res.send({ status: true });
 });
