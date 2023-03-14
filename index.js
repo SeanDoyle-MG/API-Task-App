@@ -43,7 +43,7 @@ const dbSetup = (doInsert) => {
                 ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday"),
                 ("React project state management", "4 hours", "Low", "Thursday"),
                 ("Experiment with Styled Components", "1 hour", "Low", "Thursday");
-      `);
+        `);
     }
 };
 
