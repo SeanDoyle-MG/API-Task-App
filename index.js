@@ -32,7 +32,7 @@ const dbSetup = (doInsert) => {
         duration TEXT NOT NULL,
         priority TEXT NOT NULL,
         day      TEXT NOT NULL,
-        status   TEXT NOT NULL,
+        taskStat TEXT NOT NULL,
         created  TEXT NOT NULL
       );
     `);
