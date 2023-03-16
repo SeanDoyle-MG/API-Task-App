@@ -45,10 +45,10 @@ const dbSetup = (doInsert) => {
     if (doInsert) {
         db.run(`
           INSERT INTO Tasks (taskName, duration, priority, day, taskStat, created)
-          VALUES ("Learning React", "2 hours", "High", "Monday", "false", 1675904343555), 
-                ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", "false", 1675904412722),
-                ("React project state management", "4 hours", "Low", "Thursday", "false", 1675904412725),
-                ("Experiment with Styled Components", "1 hour", "Low", "Thursday", "true", 1675904412729);
+          VALUES ("Learning React", "2 hours", "High", "Monday", "false", "1675904343555"), 
+                ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", "false", "1675904412722"),
+                ("React project state management", "4 hours", "Low", "Thursday", "false", "1675904412725"),
+                ("Experiment with Styled Components", "1 hour", "Low", "Thursday", "true", "1675904412729");
         `);
     }
 };
