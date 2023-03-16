@@ -26,7 +26,6 @@ const dbSetup = (doInsert) => {
     }
 
     db.run(`
-      DROP TABLE IF EXISTS Tasks;
       CREATE TABLE IF NOT EXISTS Tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         taskName TEXT NOT NULL,
@@ -52,7 +51,7 @@ const dbSetup = (doInsert) => {
 const listenCallback = () => {
     console.log(`Server is listening on port ${port}.`);
     db = new sqlite3.Database("tasks.db");
-    dbSetup(true);
+    dbSetup(false);
 };
 
 app.listen(port, listenCallback);
