@@ -36,11 +36,11 @@ const dbSetup = (doInsert) => {
     `);
 
     db.run(`
-    ALTER TABLE Tasks (
-      taskStat TEXT NOT NULL,
-      created  TEXT NOT NULL
-    );
-  `);
+      ALTER TABLE Tasks (
+        taskStat TEXT NOT NULL,
+        created  TEXT NOT NULL
+        );
+    `);
 
     if (doInsert) {
         db.run(`
