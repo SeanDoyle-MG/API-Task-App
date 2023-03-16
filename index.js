@@ -33,7 +33,7 @@ const dbSetup = (doInsert) => {
         priority TEXT NOT NULL,
         day      TEXT NOT NULL,
         status   TEXT NOT NULL,
-        created  INTEGER NOT NULL
+        created  TEXT NOT NULL
       );
     `);
 
@@ -51,7 +51,7 @@ const dbSetup = (doInsert) => {
 const listenCallback = () => {
     console.log(`Server is listening on port ${port}.`);
     db = new sqlite3.Database("tasks.db");
-    dbSetup(false);
+    dbSetup(true);
 };
 
 app.listen(port, listenCallback);
@@ -110,7 +110,7 @@ app.put('/api/tasks/:id', (req, res) => {
         typeof priority === 'string' && priority.length > 0 &&
         typeof day === 'string' && day.length > 0 &&
         typeof taskStat === 'string' && taskStat.length > 0 &&
-        typeof created === 'number'
+        typeof created === 'string'
     ) {
         db.run(` 
             UPDATE Tasks 
