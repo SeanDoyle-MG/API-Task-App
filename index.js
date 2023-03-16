@@ -31,17 +31,19 @@ const dbSetup = (doInsert) => {
         taskName TEXT NOT NULL,
         duration TEXT NOT NULL,
         priority TEXT NOT NULL,
-        day      TEXT NOT NULL
+        day      TEXT NOT NULL,
+        status   TEXT NOT NULL,
+        created  INTEGER NOT NULL
       );
     `);
 
     if (doInsert) {
         db.run(`
-          INSERT INTO Tasks (taskName, duration, priority, day)
-          VALUES ("Learning React", "2 hours", "High", "Monday"), 
-                ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday"),
-                ("React project state management", "4 hours", "Low", "Thursday"),
-                ("Experiment with Styled Components", "1 hour", "Low", "Thursday");
+          INSERT INTO Tasks (taskName, duration, priority, day, taskStat, created)
+          VALUES ("Learning React", "2 hours", "High", "Monday", "false", 1675904343555), 
+                ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", "false", 1675904412722),
+                ("React project state management", "4 hours", "Low", "Thursday", "false", 1675904412725),
+                ("Experiment with Styled Components", "1 hour", "Low", "Thursday", "true", 1675904412729);
         `);
     }
 };
@@ -102,19 +104,24 @@ app.delete("/api/tasks/:id", (req, res) => {
 
 app.put('/api/tasks/:id', (req, res) => {
     const id = req.params.id;
-    const { taskName, duration, priority, day } = req.body;
+    const { taskName, duration, priority, day, taskStat, created } = req.body;
     if (typeof taskName === 'string' && taskName.length > 0 &&
         typeof duration === 'string' && duration.length > 0 &&
         typeof priority === 'string' && priority.length > 0 &&
-        typeof day === 'string' && day.length > 0) {
+        typeof day === 'string' && day.length > 0 &&
+        typeof taskStat === 'string' && taskStat.length > 0 &&
+        typeof created === 'number'
+    ) {
         db.run(` 
             UPDATE Tasks 
             SET taskName=?, 
                 duration=?, 
                 priority=?,
                 day=? 
+                taskStat=?
+                created=?
             WHERE id=? 
-        `, [taskName, duration, priority, day, id],
+        `, [taskName, duration, priority, day, taskStat, created, id],
             (error) => {
                 if (error) {
                     res.send({ status: 500, error: error.message });
@@ -130,9 +137,9 @@ app.put('/api/tasks/:id', (req, res) => {
 app.post("/api/tasks/new", (req, res) => {
     db.run(
         `
-      INSERT INTO Tasks (taskName, duration, priority, day)
-      VALUES (?, ?, ? ?);
-    `, [req.body.taskName, req.body.duration, req.body.priority, req.body.day]
+      INSERT INTO Tasks (taskName, duration, priority, day, taskStat, created)
+      VALUES (?, ?, ?, ?, ?, ?);
+    `, [req.body.taskName, req.body.duration, req.body.priority, req.body.day, req.body.taskStat, req.body.created]
     );
     res.send({ status: true });
 });
