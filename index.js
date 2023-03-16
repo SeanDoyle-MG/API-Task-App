@@ -26,17 +26,13 @@ const dbSetup = (doInsert) => {
     }
 
     db.run(`
+      DROP TABLE IF EXISTS Tasks;
       CREATE TABLE IF NOT EXISTS Tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         taskName TEXT NOT NULL,
         duration TEXT NOT NULL,
         priority TEXT NOT NULL,
-        day      TEXT NOT NULL
-        );
-    `);
-
-    db.run(`
-      ALTER TABLE Tasks (
+        day      TEXT NOT NULL,
         taskStat TEXT NOT NULL,
         created  TEXT NOT NULL
         );
