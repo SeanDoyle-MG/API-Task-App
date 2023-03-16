@@ -32,18 +32,18 @@ const dbSetup = (doInsert) => {
         duration    TEXT NOT NULL,
         priority    TEXT NOT NULL,
         day         TEXT NOT NULL,
-        isCompleted TEXT NOT NULL,
-        createdAt   TEXT NOT NULL
+        isCompleted BOOLEAN NOT NULL,
+        createdAt   INTEGER NOT NULL
         );
     `);
 
     if (doInsert) {
         db.run(`
           INSERT INTO Tasks (taskName, duration, priority, day, isCompleted, createdAt)
-          VALUES ("Learning React", "2 hours", "High", "Monday", "false", "1675904343555"), 
-                ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", "false", "1675904412722"),
-                ("React project state management", "4 hours", "Low", "Thursday", "false", "1675904412725"),
-                ("Experiment with Styled Components", "1 hour", "Low", "Thursday", "true", "1675904412729");
+          VALUES ("Learning React", "2 hours", "High", "Monday", false, "1675904343555"), 
+                ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", false, "1675904412722"),
+                ("React project state management", "4 hours", "Low", "Thursday", false, "1675904412725"),
+                ("Experiment with Styled Components", "1 hour", "Low", "Thursday", true, "1675904412729");
         `);
     }
 };
@@ -51,7 +51,7 @@ const dbSetup = (doInsert) => {
 const listenCallback = () => {
     console.log(`Server is listening on port ${port}.`);
     db = new sqlite3.Database("tasks.db");
-    dbSetup(true);
+    dbSetup(false);
 };
 
 app.listen(port, listenCallback);
@@ -109,8 +109,8 @@ app.put('/api/tasks/:id', (req, res) => {
         typeof duration === 'string' && duration.length > 0 &&
         typeof priority === 'string' && priority.length > 0 &&
         typeof day === 'string' && day.length > 0 &&
-        typeof isCompleted === 'string' && taskStat.length > 0 &&
-        typeof createdAt === 'string'
+        typeof isCompleted === 'boolean' &&
+        typeof createdAt === 'number'
     ) {
         db.run(` 
             UPDATE Tasks 
