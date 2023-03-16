@@ -31,11 +31,16 @@ const dbSetup = (doInsert) => {
         taskName TEXT NOT NULL,
         duration TEXT NOT NULL,
         priority TEXT NOT NULL,
-        day      TEXT NOT NULL,
-        taskStat TEXT NOT NULL,
-        created  TEXT NOT NULL
-      );
+        day      TEXT NOT NULL
+        );
     `);
+
+    db.run(`
+    ALTER TABLE Tasks (
+      taskStat TEXT NOT NULL,
+      created  TEXT NOT NULL
+    );
+  `);
 
     if (doInsert) {
         db.run(`
