@@ -2,9 +2,18 @@ const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3');
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(
+    cors({
+        origin: "*",
+    })
+);
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+});
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -28,12 +37,12 @@ const dbSetup = (doInsert) => {
     db.run(`
       CREATE TABLE IF NOT EXISTS Tasks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        taskName    TEXT NOT NULL,
-        duration    TEXT NOT NULL,
-        priority    TEXT NOT NULL,
-        day         TEXT NOT NULL,
-        isCompleted BOOLEAN NOT NULL,
-        createdAt   INTEGER NOT NULL
+        taskName    TEXT,
+        duration    TEXT,
+        priority    TEXT,
+        day         TEXT,
+        isCompleted BOOLEAN,
+        createdAt   INTEGER
         );
     `);
 
@@ -61,6 +70,7 @@ const renderMainPage = (req, res) => {
 };
 app.get("/", renderMainPage);
 
+/********************************RETRIEVE ALL TASKS*************************************/
 app.get("/api/tasks", (req, res) => {
     db.all("SELECT * FROM Tasks", (error, rows) => {
         if (error) {
@@ -71,15 +81,10 @@ app.get("/api/tasks", (req, res) => {
     });
 });
 
+/********************************RETRIEVE A TASK BY ID***********************************/
 app.get("/api/tasks/:id", (req, res) => {
     const id = Number.parseInt(req.params.id, 10);
-
-    db.all(
-        `
-      SELECT *
-      FROM Tasks
-      WHERE id = ?
-    `, [id],
+    db.all(`SELECT * FROM Tasks WHERE id = ?;`, [id],
         (error, rows) => {
             if (error) {
                 res.send({ error });
@@ -90,56 +95,32 @@ app.get("/api/tasks/:id", (req, res) => {
     );
 });
 
-app.delete("/api/tasks/:id", (req, res) => {
-    const id = Number.parseInt(req.params.id, 10);
-
-    db.run(
-        `
-      DELETE FROM Tasks
-      WHERE id = ?
-    `, [id]
-    );
+/********************************CREATE A NEW TASK***************************************/
+app.post("/api/tasks/new", (req, res) => {
+    db.run(`
+        INSERT INTO Tasks(taskName, duration, priority, 
+                          day, isCompleted, createdAt)
+        VALUES( ? , ? , ? , ? , ? , ?);
+    `, [req.body.taskName, req.body.duration, req.body.priority,
+    req.body.day, req.body.isCompleted, req.body.createdAt
+    ]);
     res.send({ status: true });
 });
 
+/********************************UPDATE AN EXISTING TASK BY ID****************************/
 app.put('/api/tasks/:id', (req, res) => {
-    const id = req.params.id;
-    const { taskName, duration, priority, day, isCompleted, createdAt } = req.body;
-    if (typeof taskName === 'string' && taskName.length > 0 &&
-        typeof duration === 'string' && duration.length > 0 &&
-        typeof priority === 'string' && priority.length > 0 &&
-        typeof day === 'string' && day.length > 0 &&
-        typeof isCompleted === 'boolean' &&
-        typeof createdAt === 'number'
-    ) {
-        db.run(` 
-            UPDATE Tasks 
-            SET taskName=?, 
-                duration=?, 
-                priority=?,
-                day=? 
-                isCompleted=?
-                createdAt=?
-            WHERE id=? 
-        `, [taskName, duration, priority, day, isCompleted, createdAt, id],
-            (error) => {
-                if (error) {
-                    res.send({ status: 500, error: error.message });
-                } else {
-                    res.send({ status: 200, message: 'OK' });
-                }
-            });
-    } else {
-        res.send({ status: 404, message: 'Invalid request.' });
-    }
+    const id = Number.parseInt(req.params.id, 10);
+    const { taskName, duration, priority } = req.body;
+    db.run(`
+        UPDATE Tasks SET taskName=?, duration=?, priority=?
+        WHERE id=?
+    `, [taskName, duration, priority, id]);
+    res.send({ status: true });
 });
 
-app.post("/api/tasks/new", (req, res) => {
-    db.run(
-        `
-      INSERT INTO Tasks (taskName, duration, priority, day, isCompleted, createdAt)
-      VALUES (?, ?, ?, ?, ?, ?);
-    `, [req.body.taskName, req.body.duration, req.body.priority, req.body.day, req.body.isCompleted, req.body.createdAt]
-    );
+/********************************DELETE A TASK BY ID***************************************/
+app.delete("/api/tasks/:id", (req, res) => {
+    const id = Number.parseInt(req.params.id, 10);
+    db.run(`DELETE FROM Tasks WHERE id = ?;`, [id]);
     res.send({ status: true });
 });
