@@ -9,7 +9,7 @@ app.use(
         origin: "*",
     })
 );
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     next();
 });
@@ -102,7 +102,7 @@ app.post("/api/tasks/new", (req, res) => {
                           day, isCompleted, createdAt)
         VALUES( ? , ? , ? , ? , ? , ?);
     `, [req.body.taskName, req.body.duration, req.body.priority,
-    req.body.day, req.body.isCompleted, req.body.createdAt
+        req.body.day, req.body.isCompleted, req.body.createdAt
     ]);
     res.send({ status: true });
 });
