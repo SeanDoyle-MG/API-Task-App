@@ -110,11 +110,11 @@ app.post("/api/tasks/new", (req, res) => {
 /********************************UPDATE AN EXISTING TASK BY ID****************************/
 app.put('/api/tasks/:id', (req, res) => {
     const id = Number.parseInt(req.params.id, 10);
-    const { taskName, duration, priority } = req.body;
+    const { taskName, duration, priority, day, isCompleted, createdAt } = req.body;
     db.run(`
-        UPDATE Tasks SET taskName=?, duration=?, priority=?
+        UPDATE Tasks SET taskName=?, duration=?, priority=?, day=?, isCompleted=?, createdAt=?
         WHERE id=?
-    `, [taskName, duration, priority, id]);
+    `, [taskName, duration, priority, day, isCompleted, createdAt, id]);
     res.send({ status: true });
 });
 
