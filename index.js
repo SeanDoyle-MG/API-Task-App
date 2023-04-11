@@ -9,7 +9,7 @@ app.use(
         origin: "*",
     })
 );
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     next();
 });
@@ -34,26 +34,30 @@ const dbSetup = (doInsert) => {
         return;
     }
 
+    //db.run(`
+    //DROP TABLE Tasks`);
+
     db.run(`
       CREATE TABLE IF NOT EXISTS Tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        taskName    TEXT,
-        duration    TEXT,
-        priority    TEXT,
-        day         TEXT,
-        isCompleted BOOLEAN,
-        createdAt   INTEGER
-        );
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    taskName    TEXT,
+    duration    TEXT,
+    priority    TEXT,
+    day         TEXT,
+    dayTaskOrd  INTEGER,
+    isCompleted BOOLEAN,
+    createdAt   INTEGER
+    );
     `);
 
     if (doInsert) {
         db.run(`
-          INSERT INTO Tasks (taskName, duration, priority, day, isCompleted, createdAt)
-          VALUES ("Learning React", "2 hours", "High", "Monday", false, 1675904343555), 
-                ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", false, 1675904412722),
-                ("React project state management", "4 hours", "Low", "Thursday", false, 1675904412725),
-                ("Experiment with Styled Components", "1 hour", "Low", "Thursday", true, 1675904412729);
-        `);
+      INSERT INTO Tasks (taskName, duration, priority, day, dayTaskOrd, isCompleted, createdAt)
+      VALUES ("Learning React", "2 hours", "High", "Monday", 1, false, 1675904343555), 
+    ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", 1, false, 1675904412722),
+    ("React project state management", "4 hours", "Low", "Thursday", 1, false, 1675904412725),
+    ("Experiment with Styled Components", "1 hour", "Low", "Thursday", 2, true, 1675904412729);
+    `);
     }
 };
 
@@ -99,10 +103,10 @@ app.get("/api/tasks/:id", (req, res) => {
 app.post("/api/tasks/new", (req, res) => {
     db.run(`
         INSERT INTO Tasks(taskName, duration, priority, 
-                          day, isCompleted, createdAt)
-        VALUES( ? , ? , ? , ? , ? , ?);
+                          day, dayTaskOrd, isCompleted, createdAt)
+        VALUES( ? , ? , ? , ? , ? , ?, ?);
     `, [req.body.taskName, req.body.duration, req.body.priority,
-        req.body.day, req.body.isCompleted, req.body.createdAt
+    req.body.day, req.body.dayTaskOrd, req.body.isCompleted, req.body.createdAt
     ]);
     res.send({ status: true });
 });
@@ -110,11 +114,11 @@ app.post("/api/tasks/new", (req, res) => {
 /********************************UPDATE AN EXISTING TASK BY ID****************************/
 app.put('/api/tasks/:id', (req, res) => {
     const id = Number.parseInt(req.params.id, 10);
-    const { taskName, duration, priority, day, isCompleted, createdAt } = req.body;
+    const { taskName, duration, priority, day, dayTaskOrd, isCompleted, createdAt } = req.body;
     db.run(`
-        UPDATE Tasks SET taskName=?, duration=?, priority=?, day=?, isCompleted=?, createdAt=?
+        UPDATE Tasks SET taskName=?, duration=?, priority=?, day=?, dayTaskOrd=?, isCompleted=?, createdAt=?
         WHERE id=?
-    `, [taskName, duration, priority, day, isCompleted, createdAt, id]);
+    `, [taskName, duration, priority, day, dayTaskOrd, isCompleted, createdAt, id]);
     res.send({ status: true });
 });
 
