@@ -64,7 +64,7 @@ const dbSetup = (doInsert) => {
 const listenCallback = () => {
     console.log(`Server is listening on port ${port}.`);
     db = new sqlite3.Database("tasks.db");
-    dbSetup(false);
+    dbSetup(true);
 };
 
 app.listen(port, listenCallback);
