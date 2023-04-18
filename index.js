@@ -9,7 +9,7 @@ app.use(
         origin: "*",
     })
 );
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     next();
 });
@@ -44,19 +44,19 @@ const dbSetup = (doInsert) => {
     duration    TEXT,
     priority    TEXT,
     day         TEXT,
-    dayTaskOrd  INTEGER,
     isCompleted BOOLEAN,
-    createdAt   INTEGER
+    createdAt   INTEGER,
+    updatedAt   INTEGER
     );
     `);
 
     if (doInsert) {
         db.run(`
-      INSERT INTO Tasks (taskName, duration, priority, day, dayTaskOrd, isCompleted, createdAt)
-      VALUES ("Learning React", "2 hours", "High", "Monday", 1, false, 1675904343555), 
-    ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", 1, false, 1675904412722),
-    ("React project state management", "4 hours", "Low", "Thursday", 1, false, 1675904412725),
-    ("Experiment with Styled Components", "1 hour", "Low", "Thursday", 2, true, 1675904412729);
+      INSERT INTO Tasks (taskName, duration, priority, day, isCompleted, createdAt, updatedAt)
+      VALUES ("Learning React", "2 hours", "High", "Monday", false, 1675904343555, 1675904343555), 
+    ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", false, 1675904412722, 1675904412722),
+    ("React project state management", "4 hours", "Low", "Thursday", false, 1675904412725, 1675904412725),
+    ("Experiment with Styled Components", "1 hour", "Low", "Thursday", true, 1675904412729, 1675904412729);
     `);
     }
 };
@@ -64,7 +64,7 @@ const dbSetup = (doInsert) => {
 const listenCallback = () => {
     console.log(`Server is listening on port ${port}.`);
     db = new sqlite3.Database("tasks.db");
-    dbSetup(false);
+    dbSetup(true);
 };
 
 app.listen(port, listenCallback);
@@ -103,10 +103,10 @@ app.get("/api/tasks/:id", (req, res) => {
 app.post("/api/tasks/new", (req, res) => {
     db.run(`
         INSERT INTO Tasks(taskName, duration, priority, 
-                          day, dayTaskOrd, isCompleted, createdAt)
+                          day, isCompleted, createdAt, updatedAt)
         VALUES( ? , ? , ? , ? , ? , ?, ?);
     `, [req.body.taskName, req.body.duration, req.body.priority,
-    req.body.day, req.body.dayTaskOrd, req.body.isCompleted, req.body.createdAt
+        req.body.day, req.body.isCompleted, req.body.createdAt, req.body.updatedAt
     ]);
     res.send({ status: true });
 });
@@ -114,11 +114,11 @@ app.post("/api/tasks/new", (req, res) => {
 /********************************UPDATE AN EXISTING TASK BY ID****************************/
 app.put('/api/tasks/:id', (req, res) => {
     const id = Number.parseInt(req.params.id, 10);
-    const { taskName, duration, priority, day, dayTaskOrd, isCompleted, createdAt } = req.body;
+    const { taskName, duration, priority, day, isCompleted, createdAt, updatedAt } = req.body;
     db.run(`
-        UPDATE Tasks SET taskName=?, duration=?, priority=?, day=?, dayTaskOrd=?, isCompleted=?, createdAt=?
+        UPDATE Tasks SET taskName=?, duration=?, priority=?, day=?, isCompleted=?, createdAt=?, updatedAt=?
         WHERE id=?
-    `, [taskName, duration, priority, day, dayTaskOrd, isCompleted, createdAt, id]);
+    `, [taskName, duration, priority, day, isCompleted, createdAt, updatedAt, id]);
     res.send({ status: true });
 });
 
