@@ -9,7 +9,7 @@ app.use(
         origin: "*",
     })
 );
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     next();
 });
@@ -99,14 +99,14 @@ app.get("/api/tasks/:id", (req, res) => {
     );
 });
 
-/********************************CREATE A NEW TASK***************************************/
+/********************************CREATE A NEW TASK****************************************/
 app.post("/api/tasks/new", (req, res) => {
     db.run(`
         INSERT INTO Tasks(taskName, duration, priority, 
                           day, isCompleted, createdAt, updatedAt)
         VALUES( ? , ? , ? , ? , ? , ?, ?);
     `, [req.body.taskName, req.body.duration, req.body.priority,
-        req.body.day, req.body.isCompleted, req.body.createdAt, req.body.updatedAt
+    req.body.day, req.body.isCompleted, req.body.createdAt, req.body.updatedAt
     ]);
     res.send({ status: true });
 });
