@@ -34,31 +34,31 @@ const dbSetup = (doInsert) => {
         return;
     }
 
-    //db.run(`
-    //DROP TABLE Tasks`);
-
     db.run(`
-      CREATE TABLE IF NOT EXISTS Tasks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    taskName    TEXT,
-    duration    TEXT,
-    priority    TEXT,
-    day         TEXT,
-    isCompleted BOOLEAN,
-    createdAt   INTEGER,
-    updatedAt   INTEGER
-    );
-    `);
+    DROP TABLE Tasks`);
 
-    if (doInsert) {
-        db.run(`
-      INSERT INTO Tasks (taskName, duration, priority, day, isCompleted, createdAt, updatedAt)
-      VALUES ("Learning React", "2 hours", "High", "Monday", false, 1675904343555, 1675904343555), 
-    ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", false, 1675904412722, 1675904412722),
-    ("React project state management", "4 hours", "Low", "Thursday", false, 1675904412725, 1675904412725),
-    ("Experiment with Styled Components", "1 hour", "Low", "Thursday", true, 1675904412729, 1675904412729);
-    `);
-    }
+    // db.run(`
+    //   CREATE TABLE IF NOT EXISTS Tasks (
+    // id INTEGER PRIMARY KEY AUTOINCREMENT,
+    // taskName    TEXT,
+    // duration    TEXT,
+    // priority    TEXT,
+    // day         TEXT,
+    // isCompleted BOOLEAN,
+    // createdAt   INTEGER,
+    // updatedAt   INTEGER
+    // );
+    // `);
+
+    // if (doInsert) {
+    // db.run(`
+    //   INSERT INTO Tasks (taskName, duration, priority, day, isCompleted, createdAt, updatedAt)
+    //   VALUES ("Learning React", "2 hours", "High", "Monday", false, 1675904343555, 1675904343555), 
+    // ("Leetcode exercise in Python", "30 minutes", "Medium", "Wednesday", false, 1675904412722, 1675904412722),
+    // ("React project state management", "4 hours", "Low", "Thursday", false, 1675904412725, 1675904412725),
+    // ("Experiment with Styled Components", "1 hour", "Low", "Thursday", true, 1675904412729, 1675904412729);
+    // `);
+    // }
 };
 
 const listenCallback = () => {
