@@ -9,7 +9,7 @@ app.use(
         origin: "*",
     })
 );
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     next();
 });
@@ -64,7 +64,7 @@ const dbSetup = (doInsert) => {
 const listenCallback = () => {
     console.log(`Server is listening on port ${port}.`);
     db = new sqlite3.Database("tasks.db");
-    dbSetup(true);
+    dbSetup(false);
 };
 
 app.listen(port, listenCallback);
@@ -106,7 +106,7 @@ app.post("/api/tasks/new", (req, res) => {
                           day, isCompleted, createdAt, updatedAt)
         VALUES( ? , ? , ? , ? , ? , ?, ?);
     `, [req.body.taskName, req.body.duration, req.body.priority,
-    req.body.day, req.body.isCompleted, req.body.createdAt, req.body.updatedAt
+        req.body.day, req.body.isCompleted, req.body.createdAt, req.body.updatedAt
     ]);
     res.send({ status: true });
 });
